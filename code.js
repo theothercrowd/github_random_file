@@ -7,7 +7,7 @@ const gitTokens = ['API_GITHUB']
 //Insert your GitHub names here in next format ['name1', 'name2', 'name3']
 const gitNames = ['USERNAME_GITHUB']
 
-const { HttpsProxyAgent } = require('https-proxy-agent');
+
 
 //Function to generate unique name for the file
 function generateUniqueName() {
@@ -17,7 +17,7 @@ function generateUniqueName() {
 //Function to push random cat fact to the GitHub repo
 async function pushRandomCatName(repoOwner, token) {
     //API initialization
-    const octokit = new Octokit({ auth: token, agent: new HttpsProxyAgent("http://IP:PORT") });
+    const octokit = new Octokit({ auth: token });
 
     try {
 
