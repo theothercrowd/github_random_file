@@ -88,9 +88,10 @@ git config --global user.email ""
 }
 
 CSVROWS=$(awk 'END {print NR}' $DATAFILE)
+TOTALACCS=$(($CSVROWS - 1))
 
 echo "
-Available accounts (total = $CSVROWS):
+Available accounts (total = $TOTALACCS):
 "
 
 echo "$(awk -F ',' 'NR > 1 { print NR, $2 }' $DATAFILE)"
