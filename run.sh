@@ -1,19 +1,41 @@
 #!/bin/bash
 
+# Setting path to data.csv file
+DATAFILE="data.csv"
+
+function github (){
+
+# Setting account number from input (actually row number on which account is placed)
+ACC=$1
+
+  function readcsv() {
+    awk -F ',' -v line="$1" -v field="$2" 'NR == line {print $field}'
+  }
+  function xreadcsv() {
+    readcsv $ACC $1 < $DATAFILE
+  }
+
 # Setting proxy
-git config --global http.proxy http://USER:PASSWORD@IP:PORT
+HTTPPROXY=$(xreadcsv 8)
+git config --global http.proxy $HTTPPROXY
 
 # Set the API key
-API_KEY="YOUR_API_KEY"
+API_KEY=$(xreadcsv 5)
 
-# Set the repository details
-USERNAME="YOUR_USERNAME"
-REPO="YOUR_REPO_NAME"
-BRANCH="YOUR_BRANCH"
-DESCRIPTION="YOUR_FILE_DESCRIPTION"
+# Set other main variables
+USEREMAIL=$(xreadcsv 1)
+USERNAME=$(xreadcsv 2)
+REPO=$(xreadcsv 3)
+BRANCH=$(xreadcsv 4)
+FILE_DESCRIPTION=$(xreadcsv 6)
+
+# Set global git user.name and user.email
+git config --global user.name "$USERNAME"
+git config --global user.email "$USEREMAIL"
 
 # Fetch a random fact from the JSON API
-FACT=$(curl -s "https://uselessfacts.jsph.pl/api/v2/facts/random" | jq -r '.text')
+JSONURL=$(xreadcsv 7)
+FACT=$(curl -s "$JSONURL" | jq -r '.text')
 
 # Create a temporary directory
 TEMP_DIR=$(mktemp -d)
@@ -36,24 +58,57 @@ for ((i=0; i<5; i++)); do
     number="${number}${digit}"
 done
 
-current_date=$(date +'%d%m%Y'_'%H%M%S')
-file_name=$current_date$'_'$number.txt
+CURRENT_DATE=$(date +'%d%m%Y'_'%H%M%S')
+FILE_NAME=$CURRENT_DATE$'_'$number$'.'txt
 
 # Create a random text file with the fetched fact
 
-echo "$FACT" > $file_name
+echo "$FACT" > $FILE_NAME
 
 # Add the file to the staging area
-git add $file_name
+git add $FILE_NAME
 
 # Commit the changes with a message
-git commit -m "$DESCRIPTION"
+git commit -m "$FILE_DESCRIPTION"
 
 # Push the changes to the remote repository
 git push origin "$BRANCH"
 
 # Clean up the temporary directory
+cd ..
 rm -rf "$TEMP_DIR"
 
 # Unset the proxy
 git config --global --unset http.proxy
+
+# Unset username and email
+git config --global user.name ""
+git config --global user.email ""
+
+}
+
+CSVROWS=$(awk 'END {print NR}' $DATAFILE)
+
+echo "
+Available accounts (total = $CSVROWS):
+"
+
+echo "$(awk -F ',' 'NR > 1 { print NR, $2 }' $DATAFILE)"
+
+read_input() {
+    while true; do
+        read -p "
+        Please enter account number:
+        " ACCN
+        if ((ACCN < 2)); then
+            echo "
+            Number must be between 2 and $CSVROWS
+            "
+        else
+            break
+        fi
+    done
+    github "$ACCN"
+}
+
+read_input
