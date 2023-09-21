@@ -1,12 +1,38 @@
 #!/bin/bash
 
 # Setting path to data.csv file
-DATAFILE="data.csv"
+DATAFILE="data/data.csv"
 
 function github (){
 
-# Setting account number from input (actually row number on which account is placed)
+# Set account number from input (actually row number on which account is placed)
 ACC=$1
+
+  # Function to generate a random word for $FILE_DESCRIPTION
+
+  function generate_rnd_words(){
+
+    # Read the words from the file into an array
+    IFS=$'\n' read -d '' -r -a words < data/20k.txt
+
+    # Generate a random number between 4 and 10
+    num_words=$1
+
+    # Select random words from the array
+    selected_words=()
+    for ((i = 0; i < num_words; i++)); do
+      index=$((RANDOM % ${#words[@]}))
+      selected_words+=("${words[index]}")
+    done
+
+    # Join the selected words into a phrase
+    phrase=$(IFS=" "; echo "${selected_words[*]}")
+
+    echo $phrase
+
+  }
+
+  # Functions to read data.csv
 
   function readcsv() {
     awk -F ',' -v line="$1" -v field="$2" 'NR == line {print $field}'
@@ -15,27 +41,28 @@ ACC=$1
     readcsv $ACC $1 < $DATAFILE
   }
 
-# Setting proxy
-HTTPPROXY=$(xreadcsv 8)
-git config --global http.proxy $HTTPPROXY
-
-# Set the API key
-API_KEY=$(xreadcsv 5)
-
-# Set other main variables
+# Set main variables
 USEREMAIL=$(xreadcsv 1)
 USERNAME=$(xreadcsv 2)
 REPO=$(xreadcsv 3)
 BRANCH=$(xreadcsv 4)
-FILE_DESCRIPTION=$(xreadcsv 6)
+API_KEY=$(xreadcsv 5)
+HTTPPROXY=$(xreadcsv 6)
 
-# Set global git user.name and user.email
+# Generate file description
+DESC_VERBS=("Creating" "Fixing" "Changing" "Setting" "Updating")
+DESC_INDEX=$((RANDOM % ${#DESC_VERBS[@]}))
+DESC_VERB=${DESC_VERBS[DESC_INDEX]}
+RAND_WORD=$(generate_rnd_words 1)
+FILE_DESCRIPTION="$DESC_VERB $RAND_WORD"
+
+# Set global settings: git user.name, user.email, http.proxy
 git config --global user.name "$USERNAME"
 git config --global user.email "$USEREMAIL"
+git config --global http.proxy $HTTPPROXY
 
-# Fetch a random fact from the JSON API
-JSONURL=$(xreadcsv 7)
-FACT=$(curl -s "$JSONURL" | jq -r '.text')
+# Fetch a random fact from the data/facts.txt
+FACT=$(shuf -n 1 data/facts.txt)
 
 # Create a temporary directory
 TEMP_DIR=$(mktemp -d)
@@ -78,14 +105,15 @@ git push origin "$BRANCH"
 cd ..
 rm -rf "$TEMP_DIR"
 
-# Unset the proxy
+# Unsetting git config
 git config --global --unset http.proxy
-
-# Unset username and email
 git config --global user.name ""
 git config --global user.email ""
 
 }
+
+if command -v awk &> /dev/null; then
+echo "awk is installed"
 
 CSVROWS=$(awk 'END {print NR}' $DATAFILE)
 TOTALACCS=$(($CSVROWS - 1))
@@ -113,3 +141,8 @@ read_input() {
 }
 
 read_input
+
+else
+    echo "awk is not installed, please install awk and run again"
+    exit 1
+fi
