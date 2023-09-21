@@ -1,1 +1,2 @@
 email,username,repo,branch,api,proxy
+my1@email.com,USERNAME1,REPO1,BRANCH1,GITHUB_API1,https://USER:PASSWORD@IP:PORT
