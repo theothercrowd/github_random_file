@@ -8,8 +8,8 @@ Also you need a github api key of your account (preferrably created without expi
 How to use?
 
 1. Install awk (pre-installed on Ubuntu)
-2. Put your personal data to data.csv starting from the second row.
+2. Put your github personal data to data.csv starting from the second row.
 3. chmod +x run.sh
-4. ./run.sh
-5. Enter your account number from the list that will be shown in terminal
-6. Enjoy another commit to your github account!
+4. Enter ./run.sh 1 if you want to act with account number 1 from data.csv file
+5. Enjoy another commit to your github account!
+
