@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Setting path to data.csv file
+# Setting paths to your data files
 DATAFILE="/path/to/your/data.csv"
+TXTFILE="/path/to/your/20k.txt"
+FACTSFILE="/path/to/your/facts.txt"
 
 # Function to find a row on which the needed account is placed
 
@@ -27,7 +29,7 @@ function github (){
   function generate_rnd_words(){
 
     # Read the words from the file into an array
-    IFS=$'\n' read -d '' -r -a words < /home/vardhanam/Code/github/data/20k.txt
+    IFS=$'\n' read -d '' -r -a words < $TXTFILE
 
     # Generate a random number between 4 and 10
     num_words=$1
@@ -76,7 +78,7 @@ git config --global user.email "$USEREMAIL"
 git config --global http.proxy $HTTPPROXY
 
 # Fetch a random fact from the data/facts.txt
-FACT=$(shuf -n 1 /home/vardhanam/Code/github/data/facts.txt)
+FACT=$(shuf -n 1 $FACTSFILE)
 
 # Create a temporary directory
 TEMP_DIR=$(mktemp -d)
@@ -118,7 +120,7 @@ git push origin "$BRANCH"
 # Clean up the temporary directory
 cd ..
 rm -rf "$TEMP_DIR"
-cd /home/vardhanam/Code/github/
+cd $HOME
 
 # Unsetting git config
 git config --global --unset http.proxy
