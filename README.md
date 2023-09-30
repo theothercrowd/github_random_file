@@ -9,7 +9,7 @@ How to use?
 
 1. Install awk (pre-installed on Ubuntu)
 2. Put your github personal data to data.csv starting from the second row.
-3. chmod +x run.sh
-4. Enter ./run.sh 1 if you want to act with account number 1 from data.csv file
-5. Enjoy another commit to your github account!
-
+3. Change variables DATAFILE, TXTFILE, FACTSFILE with your actual paths to these files from /data directory of this repository.
+4. chmod +x run.sh
+5. Execute ". run.sh 1" if you want the script to act with account number 1 from data.csv file (not the row number but the account number = a value from the first column of data.csv!)
+6. Enjoy another commit to your github account!
