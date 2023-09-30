@@ -1,19 +1,33 @@
 #!/bin/bash
 
 # Setting path to data.csv file
-DATAFILE="data/data.csv"
+DATAFILE="/path/to/your/data.csv"
+
+# Function to find a row on which the needed account is placed
+
+function find_row {
+    local value="$1"
+
+    if [ ! -f "$DATAFILE" ]; then
+        echo "File not found: $file"
+        return 1
+    fi
+
+    awk -v value="$value" -F ',' '$1 == value { print NR }' "$DATAFILE"
+}
+
+# Set the variable that is actually connecting account number with a csv file row number
+
+ACC=$(find_row $1)
 
 function github (){
-
-# Set account number from input (actually row number on which account is placed)
-ACC=$1
 
   # Function to generate a random word for $FILE_DESCRIPTION
 
   function generate_rnd_words(){
 
     # Read the words from the file into an array
-    IFS=$'\n' read -d '' -r -a words < data/20k.txt
+    IFS=$'\n' read -d '' -r -a words < /home/vardhanam/Code/github/data/20k.txt
 
     # Generate a random number between 4 and 10
     num_words=$1
@@ -42,12 +56,12 @@ ACC=$1
   }
 
 # Set main variables
-USEREMAIL=$(xreadcsv 1)
-USERNAME=$(xreadcsv 2)
-REPO=$(xreadcsv 3)
-BRANCH=$(xreadcsv 4)
-API_KEY=$(xreadcsv 5)
-HTTPPROXY=$(xreadcsv 6)
+USEREMAIL=$(xreadcsv 2)
+USERNAME=$(xreadcsv 3)
+REPO=$(xreadcsv 4)
+BRANCH=$(xreadcsv 5)
+API_KEY=$(xreadcsv 6)
+HTTPPROXY=$(xreadcsv 7)
 
 # Generate file description
 DESC_VERBS=("Creating" "Fixing" "Changing" "Setting" "Updating")
@@ -62,7 +76,7 @@ git config --global user.email "$USEREMAIL"
 git config --global http.proxy $HTTPPROXY
 
 # Fetch a random fact from the data/facts.txt
-FACT=$(shuf -n 1 data/facts.txt)
+FACT=$(shuf -n 1 /home/vardhanam/Code/github/data/facts.txt)
 
 # Create a temporary directory
 TEMP_DIR=$(mktemp -d)
@@ -86,7 +100,7 @@ for ((i=0; i<5; i++)); do
 done
 
 CURRENT_DATE=$(date +'%d%m%Y'_'%H%M%S')
-FILE_NAME=$CURRENT_DATE$'_'$number$'.'txt
+FILE_NAME=$REPO$'_'$CURRENT_DATE$'_'$number$'.'txt
 
 # Create a random text file with the fetched fact
 
@@ -104,6 +118,7 @@ git push origin "$BRANCH"
 # Clean up the temporary directory
 cd ..
 rm -rf "$TEMP_DIR"
+cd /home/vardhanam/Code/github/
 
 # Unsetting git config
 git config --global --unset http.proxy
@@ -112,37 +127,4 @@ git config --global user.email ""
 
 }
 
-if command -v awk &> /dev/null; then
-echo "awk is installed"
-
-CSVROWS=$(awk 'END {print NR}' $DATAFILE)
-TOTALACCS=$(($CSVROWS - 1))
-
-echo "
-Available accounts (total = $TOTALACCS):
-"
-
-echo "$(awk -F ',' 'NR > 1 { print NR, $2 }' $DATAFILE)"
-
-read_input() {
-    while true; do
-        read -p "
-        Please enter account number:
-        " ACCN
-        if ((ACCN < 2)); then
-            echo "
-            Number must be between 2 and $CSVROWS
-            "
-        else
-            break
-        fi
-    done
-    github "$ACCN"
-}
-
-read_input
-
-else
-    echo "awk is not installed, please install awk and run again"
-    exit 1
-fi
+github $1
