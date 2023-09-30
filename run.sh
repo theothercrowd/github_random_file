@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Setting paths to your data files
-DATAFILE="/path/to/your/data.csv"
-TXTFILE="/path/to/your/20k.txt"
-FACTSFILE="/path/to/your/facts.txt"
+DATAFILE="/path/to/your/data/data.csv"
+TXTFILE="/path/to/your/data/20k.txt"
+FACTSFILE="/path/to/your/data/facts.txt"
 
 # Function to find a row on which the needed account is placed
 
@@ -118,11 +118,9 @@ git commit -m "$FILE_DESCRIPTION"
 git push origin "$BRANCH"
 
 # Clean up the temporary directory
-SHPATH=$(realpath $BASH_SOURCE)
-SHDIR="${SHPATH%/*}"
 cd ..
 rm -rf "$TEMP_DIR"
-cd $SHDIR
+cd "$HOME"
 
 # Unsetting git config
 git config --global --unset http.proxy
