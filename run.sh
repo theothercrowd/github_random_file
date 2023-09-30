@@ -118,9 +118,11 @@ git commit -m "$FILE_DESCRIPTION"
 git push origin "$BRANCH"
 
 # Clean up the temporary directory
+SHPATH=$(realpath $BASH_SOURCE)
+SHDIR="${SHPATH%/*}"
 cd ..
 rm -rf "$TEMP_DIR"
-cd $HOME
+cd $SHDIR
 
 # Unsetting git config
 git config --global --unset http.proxy
